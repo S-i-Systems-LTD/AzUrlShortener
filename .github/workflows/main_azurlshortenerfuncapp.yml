@@ -1,25 +1,12 @@
-name: Build and deploy dotnet core app to Azure Function App - azurlshortenerfuncapp
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/AzUrlShortener.Functions' # updated to the actual project path
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/Functionslight/Functions' # fixed path
   DOTNET_VERSION: '8.0.x'
 
 jobs:
   build-and-deploy:
     runs-on: windows-latest
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
-      - name: 'Checkout GitHub Action'
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v1
@@ -42,7 +29,6 @@ jobs:
 
       - name: 'Deploy to Azure Function'
         uses: Azure/functions-action@v1
-        id: fa
         with:
           app-name: 'azurlshortenerfuncapp'
           slot-name: 'Production'
