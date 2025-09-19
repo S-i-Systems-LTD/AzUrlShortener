@@ -1,4 +1,4 @@
-name: Build and deploy dotnet core app to Azure Function App - azurlshortenerfuncapp
+name: Build and Deploy Azure Function App - azurlshortenerfuncapp
  
 on:
   push:
@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
  
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/Functionslight/Functions' # fixed path
+  # Folder containing the Function App .csproj file
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/Functionslight' 
   DOTNET_VERSION: '8.0.x'
  
 jobs:
@@ -18,22 +19,27 @@ jobs:
       contents: read
  
     steps:
-      - name: 'Checkout GitHub Action'
+      # Checkout the repository
+      - name: Checkout repository
         uses: actions/checkout@v4
  
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+      # Setup .NET SDK
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
  
-      - name: 'Restore & Publish Project'
+      # Restore and publish the function app
+      - name: Restore & Publish Function App
         shell: pwsh
         run: |
           pushd '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           dotnet restore
+          # Publish to 'publish' folder including triggers metadata
           dotnet publish --configuration Release --output ./publish
           popd
  
+      # Login to Azure
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -41,7 +47,8 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D62330B060674C7289BA101D01B86645 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_828732824D6B4419B42E03476C189EF0 }}
  
-      - name: 'Deploy to Azure Function'
+      # Deploy the published function app to Azure
+      - name: Deploy to Azure Function
         uses: Azure/functions-action@v1
         with:
           app-name: 'azurlshortenerfuncapp'
